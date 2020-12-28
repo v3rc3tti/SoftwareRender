@@ -5,3 +5,5 @@ This project compiles as a static library (.lib).<br>
 ## SoftwareRender can:
 - Draw a pixel
 - Draw a line
+
+<img src="https://live.staticflickr.com/65535/50769685843_f6f7bfc2c8_b.jpg" width="957" height="628" alt="primer">
