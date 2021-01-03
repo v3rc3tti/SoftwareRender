@@ -78,20 +78,6 @@ bool Win32PixelWindow::shutdown() {
     return result;
 }
 
-bool Win32PixelWindow::procSysMsgs() {
-    MSG msg = { 0 };
-    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-        if (msg.message == WM_QUIT) {
-            return false;
-        }
-        else {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
-    return true;
-}
-
 void Win32PixelWindow::redraw() {
     HDC hdc = GetDC(m_hwnd);
     HBITMAP hBitD = CreateCompatibleBitmap(hdc, m_winWidth*m_pixelDim, m_winHeight*m_pixelDim);
@@ -115,8 +101,8 @@ void Win32PixelWindow::clearColor(uint8_t r, uint8_t g, uint8_t b) {
     }
 }
 
-void Win32PixelWindow::drawPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b) {
-    if (x >= m_winWidth || y >= m_winHeight) {
+void Win32PixelWindow::drawPixel(int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b) {
+    if (x < 0 || x >= m_winWidth || y < 0 || y >= m_winHeight) {
         return;
     }
     uint32_t pos = 4 * (y * m_winWidth + x);
@@ -125,23 +111,13 @@ void Win32PixelWindow::drawPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, u
     m_screenBits[pos + 2] = r;
 }
 
-void Win32PixelWindow::drawLine(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint8_t r, uint8_t g, uint8_t b) {
-    /*if (x1 > x2) {
-        uint32_t tmp = x1;
-        x1 = x2;
-        x2 = tmp;
-    }
-    if (y1 > y2) {
-        uint32_t tmp = y1;
-        y1 = y2;
-        y2 = tmp;
-    }*/
+void Win32PixelWindow::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t r, uint8_t g, uint8_t b) {
 
-    uint32_t dx = (x2 > x1) ? x2 - x1 : x1 - x2;
-    uint32_t dy = (y2 > y1) ? y2 - y1 : y1 - y2;
+    int32_t dx = (x2 > x1) ? x2 - x1 : x1 - x2;
+    int32_t dy = (y2 > y1) ? y2 - y1 : y1 - y2;
     if (dx < dy) {
         if (y1 > y2) {
-            uint32_t tmp = y1;
+            int32_t tmp = y1;
             y1 = y2;
             y2 = tmp;
             tmp = x1;
@@ -149,8 +125,8 @@ void Win32PixelWindow::drawLine(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t 
             x2 = tmp;
         }
         bool dir = (x1 < x2) ? true : false;
-        uint32_t slope = dx;
-        uint32_t err = 0;
+        int32_t slope = dx;
+        int32_t err = 0;
         while (y1 <= y2) {
             err += slope;
             if (err >= dy) {
@@ -167,16 +143,16 @@ void Win32PixelWindow::drawLine(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t 
     }
     else {
         if (x1 > x2) {
-            uint32_t tmp = y1;
+            int32_t tmp = y1;
             y1 = y2;
             y2 = tmp;
             tmp = x1;
             x1 = x2;
             x2 = tmp;
         }
-        uint32_t dir = (y1 < y2) ? true : false;
-        uint32_t slope = dy;
-        uint32_t err = 0;
+        int32_t dir = (y1 < y2) ? true : false;
+        int32_t slope = dy;
+        int32_t err = 0;
         while (x1 <= x2) {
             err += slope;
             if (err >= dx) {
